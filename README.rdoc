@@ -1,6 +1,6 @@
 = TinyMCE for Rails
 
-This plugin provides for the installation and utilization of TinyMCE in Ruby on Rails applications of version 2.3.5 and onward.
+This gem/plugin provides for the installation and utilization of TinyMCE in Ruby on Rails applications of version 2.3.5 and onward.
 
 TinyMCE is a WYSIWYG HTML editing component released under the GNU Lesser General Public License 2.1 (LGPL 2.1) by Moxiecode Systems (http://tinymce.moxiecode.com/).
 
@@ -140,6 +140,52 @@ See SPELLCHECKING_PLUGIN.rdoc . Note: Spell checking is not tested o regularly m
 
 http://github.com/kete/tiny_mce/tree/master/SPELLCHECKING_PLUGIN.rdoc
 
+== Generating new lang
+If you have a new language to add to this plugin you can generate it:
+  rake tiny_mce:new:lang LANG=lang
+ 
+Will generate 4 copy "en" files:
+- tiny_mce/lib/tiny_mce/assets/tiny_mce/langs/lang.js
+- tiny_mce/lib/tiny_mce/assets/tiny_mce/themes/advanced/langs/lang.js
+- tiny_mce/lib/tiny_mce/assets/tiny_mce/themes/advanced/langs/lang_dlg.js
+- tiny_mce/lib/tiny_mce/assets/tiny_mce/themes/simple/langs/lang_dlg.js
+
+Now you can make your own translation to the basic tinyMCE by editing these files (don't forget this should be done in a fork of the source code and you may want to rebuild it if you are using TinyMCE as a gem). Remember that if you use some tinyMCE plugins you will have to make translation files for those plugins manually.  This commit gives a good example of the other files involved:
+
+http://github.com/kete/tiny_mce/commit/a55d148588517e37d1b81627817d0fb3341dd4ce
+
+If you want to choose a language globally, update config/tiny_mce.yml with a language entry:
+
+language: pt-BR
+
+You may also change this in the init process for TinyMCE (good for multilanguage sites) use the :options hash accordingly in your code.
+
+You may wish to contribute your language translation back to the TinyMCE project. Details can be found here:
+
+http://wiki.moxiecode.com/index.php/TinyMCE:Creating_Language
+
+== Plugins
+
+Plugins allow you to insert or change files of the TinyMCE editor, such as installing TinyMCE Editor plugins.
+
+There is an example plugin at http://github.com/kete/tiny_mce_plugin_example
+
+A tiny_mce plugin is very simple. http://github.com/kete/tiny_mce_plugin_example/blob/master/lib/tiny_mce-paste.rb
+
+It requires tiny_mce, installs the TinyMCE sources if they aren't already, creates a subclass of TinyMCE::Plugin, and calls install on it.
+
+TinyMCE::Plugin provides a default self.install method, which copies files from self.assets_path to the tiny_mce directory under public/javascripts
+
+You can overwrite the install method to something more complex, like remove plugins, or swap plugins. Example:
+
+  class SwapPasteForPastePlus < TinyMCE::Plugin
+    def self.install
+      require 'fileutils'
+      FileUtils.rm(Rails.public.join('javascripts/tiny_mce/plugins/paste'))
+      FileUtils.cp_r(self.assets_path, Rails.public.join('javascripts/tiny_mce'))
+    end
+  end
+
 
 == Testing
 
@@ -172,4 +218,4 @@ This plugin was created by Blake Watters <blake@near-time.com>
 
 This plugin is currently maintained by Kieran Pilkington <kieran@katipo.co.nz>
 
-Bundled TinyMCE version: 3.3.1
+Bundled TinyMCE version: 3.3.6
